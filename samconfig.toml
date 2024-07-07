@@ -1,0 +1,9 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "chatgpt-line-bot-python"
+resolve_s3 = true
+s3_prefix = "chatgpt-line-bot-python"
+region = "ap-southeast-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "CHANNEL_ACCESS_TOKEN=\"xAPMq53DWgysux9SIYCruXndsgkz1a85F8FSBkrOWpmG0ZmplyArvpLdbGCyYVk+WsqGZ2c50lz/ahg5rVcrfLZ6tOXRAkYuMKsC1dfUESHvbK7pCBMTq3zecKMpzsaIp42LYRonYamClcZJHNUGfgdB04t89/1O/w1cDnyilFU=\" OPENAI_KEY=\"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\""
+image_repositories = []

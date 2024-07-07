@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  chatgpt-bot
+  Sample SAM Template for chatgpt linebot with Langchain
+
+Parameters:
+  ChannelAccessToken:
+    Type: String
+    Description: Line Messaging API Channel Access Token String
+  OpenAiKey:
+    Type: String
+    Description: OpenAI API Key String
+  LogGroup:
+    Type: String
+    Description: Common Log Group
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+
+Resources:
+  ChatGPTBotFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: chatgpt-bot/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto
+      Timeout: 90
+      Architectures:
+        - x86_64
+      # Specify if you have your own Role 
+      Role: arn:aws:iam::<account id>:role/service-role/<your role>
+      Environment:
+        Variables:
+          CHANNEL_ACCESS_TOKEN: !Ref ChannelAccessToken
+          OPENAI_KEY: !Ref OpenAiKey
+      LoggingConfig:
+        LogGroup: !Ref LogGroup
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - '*'
+        InvokeMode: BUFFERED
+      Layers:
+        - !Ref OpenAiLayer
+
+  OpenAiLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      CompatibleRuntimes: 
+        - python3.10
+      ContentUri: s3://<your bucket path>
+      Description: Common Layer for OpenAI, Linebot SDK and Langchain
+      LayerName: OpenAi
+      RetentionPolicy: Retain
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  ChatGPTBotFunction:
+    Description: "ChatGPT Bot Lambda Function ARN"
+    Value: !GetAtt ChatGPTBotFunction.Arn
+  ChatGPTBotFunctionUrlEndpoint:
+    Description: "ChatGPT Bot Lambda Function URL Endpoint"
+    Value: !GetAtt ChatGPTBotFunctionUrl.FunctionUrl
+  # ChatGPTBotFunctionFunctionIamRole:
+  #   Description: "Implicit IAM Role created for ChatGPT Bot Lambda Function"
+  #   Value: !GetAtt ChatGPTBotFunctionRole.Arn
